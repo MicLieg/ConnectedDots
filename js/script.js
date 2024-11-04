@@ -1,4 +1,18 @@
 /**
+ * Mulberry32 random number generator
+ * @returns {Function} Random number generator function
+ */
+function mulberry32() {
+    return function () {
+        let t = CONFIG.randomSeed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+
+
+/**
  * Creates and configures an SVG element
  * @returns {SVGElement} Configured SVG element
  */
@@ -30,12 +44,20 @@ function createBorder() {
  * @returns {Object} Dot object with element and physics properties
  */
 function spawnRandomDot() {
+
+    let random;
+    if (CONFIG.randomSeed == 0) {
+        random = Math.random;
+    } else {
+        random = mulberry32();
+    }
+
     const dot = {
         element: document.createElementNS("http://www.w3.org/2000/svg", "circle"),
-        x: Math.random() * (CONFIG.width - 2 * CONFIG.dotRadius) + CONFIG.dotRadius,
-        y: Math.random() * (CONFIG.height - 2 * CONFIG.dotRadius) + CONFIG.dotRadius,
-        vx: (Math.random() - 0.5) * CONFIG.maxSpeed,
-        vy: (Math.random() - 0.5) * CONFIG.maxSpeed
+        x: random() * (CONFIG.width - 2 * CONFIG.dotRadius) + CONFIG.dotRadius,
+        y: random() * (CONFIG.height - 2 * CONFIG.dotRadius) + CONFIG.dotRadius,
+        vx: (random() - 0.5) * CONFIG.maxSpeed,
+        vy: (random() - 0.5) * CONFIG.maxSpeed
     };
 
     dot.element.setAttribute("r", CONFIG.dotRadius);
@@ -50,7 +72,7 @@ function spawnRandomDot() {
 function spawnDots() {
     const dots = [];
     for (let i = 0; i < CONFIG.numDots; i++) {
-        const dot = spawnRandomDot();
+        const dot = spawnRandomDot(i);
         svg.appendChild(dot.element);
         dots.push(dot);
     }

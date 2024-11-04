@@ -8,6 +8,7 @@ const CONFIG = {
     height: 150,
     borderColor: github_colors[0],
     borderWidth: 2,
+    randomSeed: 0,
     numDots: 35,
     dotRadius: 4,
     dotColor: github_colors[1],
